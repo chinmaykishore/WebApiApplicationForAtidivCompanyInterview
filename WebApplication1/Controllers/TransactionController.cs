@@ -25,19 +25,19 @@ namespace WebApplication1.Controllers
                 {
                     TransactionId = 2, TransactionDescription = "Bill for book", TransactionAmount = 435,
                     TransactionDate = new DateTime(2021, 06, 1), PaymentStatus = "Billed" ,
-                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                    InvoiceGenerationDate = DateTime.Now, PaymentDate = new DateTime()
                 },
                 new Transaction()
                 {
                     TransactionId = 3, TransactionDescription = "bill for chocolate", TransactionAmount = 36,
                     TransactionDate = new DateTime(2021, 06, 5), PaymentStatus = "Paid" ,
-                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                    InvoiceGenerationDate = DateTime.Now, PaymentDate = DateTime.Now
                 },
                 new Transaction()
                 {
                     TransactionId = 4, TransactionDescription = "Bill for copy", TransactionAmount = 78,
                     TransactionDate = new DateTime(2021, 06, 8), PaymentStatus = "Billed" ,
-                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                    InvoiceGenerationDate = DateTime.Now, PaymentDate = new DateTime()
                 },
                 new Transaction()
                 {
@@ -113,6 +113,18 @@ namespace WebApplication1.Controllers
                         .ToList();
             
             return Ok(updatedTransactions);
+        }
+
+        [HttpPost]
+        [Route("makepayment/{id}")]
+        public IActionResult MakePayment(int id)
+        {
+            transactions.Where(x => x.TransactionId ==id).ToList()
+                        .ForEach(x => { x.PaymentDate = DateTime.Now; x.PaymentStatus = "Paid"; });
+
+            List<Transaction> paidTransactions = transactions.Where(x => x.TransactionId == id).ToList();
+
+            return Ok(paidTransactions);
         }
     }
 }
