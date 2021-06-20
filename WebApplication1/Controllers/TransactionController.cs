@@ -53,30 +53,10 @@ namespace WebApplication1.Controllers
         {
             _logger = logger;
         }
-        /*
-        [HttpGet]
-        public IList<Transaction> GetAllTransactions()
-        {
-            //Return list of all Transactions  
-            return Transactions;
-        }
-
-        [HttpGet]
-        public Transaction GetTransactionDetails(int id)
-        {
-            //Return a single Transaction detail  
-            var Transaction = Transactions.FirstOrDefault(e => e.TransactionId == id);
-            if (Transaction == null)
-            {
-                return new Transaction();
-            }
-            return Transaction;
-        }
-        */
 
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetTransactionDetails1(int id)
+        public IActionResult GetTransactionDetails(int id)
         {
             //Return a single Transaction detail  
             var Transaction = transactions.FirstOrDefault(e => e.TransactionId == id);
@@ -88,7 +68,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllTransactions1()
+        public IActionResult GetAllTransactions()
         {
             //Return list of all Transactions  
             return Ok(transactions);
@@ -96,14 +76,13 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         public IActionResult CreateTransaction(NewTransaction newTransaction)
-        //public IActionResult CreateTransaction([FromBody]string newTransactionString)
         {
             //var newTransactionDetails = JObject.Parse(newTransaction);
             //NewTransaction newTransaction = JsonConvert.DeserializeObject<NewTransaction>(newTransactionString);
             
             Transaction newTran = new Transaction()
             {
-                TransactionId = 6,
+                TransactionId = transactions.Count+1,
                 TransactionDescription = newTransaction.TransactionDescription,
                 TransactionAmount = newTransaction.TransactionAmount,
                 TransactionDate = DateTime.Now,
@@ -116,6 +95,24 @@ namespace WebApplication1.Controllers
 
 
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("generateInvoices")]
+        public IActionResult GenerateInvoices(GenerateInvoicesModel generateInvoicesModel)
+        {
+            DateTime StartDate = Convert.ToDateTime(generateInvoicesModel.StartDate);
+            DateTime EndDate = Convert.ToDateTime(generateInvoicesModel.EndDate);
+
+
+            transactions.Where(x => x.TransactionDate >= StartDate && x.TransactionDate <= EndDate)
+                        .ToList()
+                        .ForEach(x => { x.InvoiceGenerationDate = DateTime.Now; x.PaymentStatus = "Billed"; }) ;
+
+            List<Transaction> updatedTransactions = transactions.Where(x => x.TransactionDate >= StartDate && x.TransactionDate <= EndDate)
+                        .ToList();
+            
+            return Ok(updatedTransactions);
         }
     }
 }
