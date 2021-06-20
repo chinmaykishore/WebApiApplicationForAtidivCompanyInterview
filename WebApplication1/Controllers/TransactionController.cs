@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
 {
@@ -11,9 +10,39 @@ namespace WebApplication1.Controllers
     [Route("[controller]")]
     public class TransactionController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+
+        IList<Transaction> Transactions = new List<Transaction>()
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+            new Transaction()
+                {
+                    TransactionId = 1, TransactionDescription = "Bill for hotel", TransactionAmount = 1234, 
+                    TransactionDate = new DateTime(2021, 06, 18), PaymentStatus = "Unbilled" , 
+                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                },
+                new Transaction()
+                {
+                    TransactionId = 2, TransactionDescription = "Bill for book", TransactionAmount = 435, 
+                    TransactionDate = new DateTime(2021, 06, 1), PaymentStatus = "Billed" ,
+                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                },
+                new Transaction()
+                {
+                    TransactionId = 3, TransactionDescription = "bill for chocolate", TransactionAmount = 36, 
+                    TransactionDate = new DateTime(2021, 06, 5), PaymentStatus = "Paid" ,
+                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                },
+                new Transaction()
+                {
+                    TransactionId = 4, TransactionDescription = "Bill for copy", TransactionAmount = 78, 
+                    TransactionDate = new DateTime(2021, 06, 8), PaymentStatus = "Billed" ,
+                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                },
+                new Transaction()
+                {
+                    TransactionId = 5, TransactionDescription = "Bill for cold drink", TransactionAmount = 89, 
+                    TransactionDate = new DateTime(2021, 06, 20), PaymentStatus = "Unbilled" ,
+                    InvoiceGenerationDate = new DateTime(), PaymentDate = new DateTime()
+                },
         };
 
         private readonly ILogger<TransactionController> _logger;
@@ -24,16 +53,41 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Transaction> Get()
+        public IList<Transaction> GetAllTransactions()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new Transaction
+            //Return list of all Transactions  
+            return Transactions;
+        }
+
+        [HttpGet]
+        public Transaction GetTransactionDetails(int id)
+        {
+            //Return a single Transaction detail  
+            var Transaction = Transactions.FirstOrDefault(e => e.TransactionId == id);
+            if (Transaction == null)
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+                return new Transaction();
+            }
+            return Transaction;
+        }
+
+        [HttpGet]
+        public IActionResult GetTransactionDetails1(int id)
+        {
+            //Return a single Transaction detail  
+            var Transaction = Transactions.FirstOrDefault(e => e.TransactionId == id);
+            if (Transaction == null)
+            {
+                return NotFound();
+            }
+            return Ok(Transaction);
+        }
+
+        [HttpGet]
+        public IActionResult GetAllTransactions1()
+        {
+            //Return list of all Transactions  
+            return Ok(Transactions);
         }
     }
 }
